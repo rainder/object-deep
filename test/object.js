@@ -67,7 +67,7 @@ describe('object.js', function () {
 
   describe('eachDeep', function () {
 
-    it('should traverse an object', function () {
+    it('should stop on maxlevel', function () {
 
       var o = {
         a: {
@@ -84,10 +84,10 @@ describe('object.js', function () {
       function test(max, value) {
         var keys = [];
         var keyPaths = [];
-        object.eachDeep(o, function (value, key, keyPath) {
+        object.each(o, function (value, key, keyPath) {
           keys.push(key);
           keyPaths.push(keyPath);
-        }, max);
+        }, {maxLevel: max, includeObjects:true});
 
         expect(keys).length(value);
       }
@@ -97,6 +97,67 @@ describe('object.js', function () {
       test(2, 3);
       test(3, 6);
       test(4, 8);
+    });
+
+
+    it('should return correct keys including objects', function () {
+
+      var o = {
+        a: {
+          b: 6,
+          c: 7
+        },
+        d: {
+          e: {
+            f: 8
+          }
+        }
+      };
+
+      var paths = [];
+      object.each(o, function (value, key, keyPath) {
+        console.log(keyPath);
+        paths.push(keyPath);
+      }, {includeObjects: true});
+
+      expect(paths).to.deep.equal([
+        'a',
+        'a.b',
+        'a.c',
+        'd',
+        'd.e',
+        'd.e.f'
+      ]);
+
+    });
+
+
+    it('should return correct keys excluding objects', function () {
+
+      var o = {
+        a: {
+          b: 6,
+          c: 7
+        },
+        d: {
+          e: {
+            f: 8
+          }
+        }
+      };
+
+      var paths = [];
+      object.each(o, function (value, key, keyPath) {
+        console.log(keyPath);
+        paths.push(keyPath);
+      }, {includeObjects: false});
+
+      expect(paths).to.deep.equal([
+        'a.b',
+        'a.c',
+        'd.e.f'
+      ]);
+
     });
   });
 
