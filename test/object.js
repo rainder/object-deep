@@ -5,6 +5,7 @@
 var chai = require('chai');
 var expect = chai.expect;
 var object = require('./../');
+var _ = require('lodash');
 
 chai.should();
 
@@ -31,6 +32,21 @@ describe('object.js', function () {
       expect(object.get(o, 'a.c.d')).to.equal(o.a.c.d);
       expect(object.get(o, 'a.b.1.c')).to.equal(o.a.b[1].c);
       expect(object.get(o, 'a.b.x')).to.equal(undefined);
+    });
+
+  });
+
+  describe('set', function () {
+
+    it('should return values', function () {
+
+      var o = {};
+      object.set(o, 'a', 5)
+      expect(o).to.be.deep.equal({a: 5});
+
+      var o = {};
+      object.set(o, 'a.b.c', 5)
+      expect(o).to.be.deep.equal({a: {b: {c: 5}}});
     });
 
   });
@@ -84,7 +100,7 @@ describe('object.js', function () {
       function test(max, value) {
         var keys = [];
         var keyPaths = [];
-        object.each(o, function (value, key, keyPath) {
+        object.each(o, function (value, keyPath, key) {
           keys.push(key);
           keyPaths.push(keyPath);
         }, {maxLevel: max, includeObjects:true});
@@ -115,8 +131,7 @@ describe('object.js', function () {
       };
 
       var paths = [];
-      object.each(o, function (value, key, keyPath) {
-        console.log(keyPath);
+      object.each(o, function (value, keyPath, key) {
         paths.push(keyPath);
       }, {includeObjects: true});
 
@@ -147,8 +162,7 @@ describe('object.js', function () {
       };
 
       var paths = [];
-      object.each(o, function (value, key, keyPath) {
-        console.log(keyPath);
+      object.each(o, function (value, keyPath, key) {
         paths.push(keyPath);
       }, {includeObjects: false});
 
@@ -159,6 +173,25 @@ describe('object.js', function () {
       ]);
 
     });
+
+    it('should work with functions', function () {
+
+      var o = {
+        a: function () {},
+        b: []
+      };
+
+      var paths = [];
+      object.each(o, function (value, keyPath, key) {
+        paths.push(keyPath);
+      });
+
+      expect(paths).to.deep.equal([
+        'a'
+      ]);
+
+    });
+
   });
 
 
