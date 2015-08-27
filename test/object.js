@@ -182,8 +182,9 @@ describe('object.js', function () {
       };
 
       var paths = [];
-      object.each(o, function (value, keyPath, key) {
+      object.each(o, function (value, keyPath, key, o2) {
         paths.push(keyPath);
+        expect(o2).to.equals(o);
       });
 
       expect(paths).to.deep.equal([
