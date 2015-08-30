@@ -1,11 +1,9 @@
-/**
- * Created by Andrius Skerla on 19/11/14.
- * mailto: andrius@skerla.com
- */
-var chai = require('chai');
-var expect = chai.expect;
-var object = require('./../');
-var _ = require('lodash');
+'use strict';
+
+let chai = require('chai');
+let expect = chai.expect;
+let object = require('./../');
+let _ = require('lodash');
 
 chai.should();
 
@@ -16,11 +14,11 @@ describe('object.js', function () {
 
     it('should return values', function () {
 
-      var o = {
+      let o = {
         a: {
           b: [
-            {c: 8},
-            {c: 9}
+            { c: 8 },
+            { c: 9 }
           ],
           c: {
             d: 7
@@ -40,13 +38,16 @@ describe('object.js', function () {
 
     it('should return values', function () {
 
-      var o = {};
+      let o = {};
       object.set(o, 'a', 5)
-      expect(o).to.be.deep.equal({a: 5});
+      expect(o).to.be.deep.equal({ a: 5 });
 
-      var o = {};
-      object.set(o, 'a.b.c', 5)
-      expect(o).to.be.deep.equal({a: {b: {c: 5}}});
+      let o2
+        = {};
+      object.set(o2
+        , 'a.b.c', 5)
+      expect(o2
+      ).to.be.deep.equal({ a: { b: { c: 5 } } });
     });
 
   });
@@ -55,12 +56,12 @@ describe('object.js', function () {
 
     it('should delete values', function () {
 
-      var o = function () {
+      let o = function () {
         return {
           a: {
             b: [
-              {c: 8},
-              {c: 9}
+              { c: 8 },
+              { c: 9 }
             ],
             c: {
               d: 7
@@ -72,7 +73,7 @@ describe('object.js', function () {
       expect(object.del(o(), 'a.b').a).to.have.property('c');
       expect(object.del(o(), 'a.c.d').a.c).not.to.have.property('d');
 
-      var x = o();
+      let x = o();
       object.del(x, 'a.b.1');
       expect(x.a.b).length(1);
       expect(x.a.b[0]).to.have.property('c');
@@ -85,11 +86,11 @@ describe('object.js', function () {
 
     it('should stop on maxlevel', function () {
 
-      var o = {
+      let o = {
         a: {
           b: [
-            {c: 8},
-            {c: 9}
+            { c: 8 },
+            { c: 9 }
           ],
           c: {
             d: 7
@@ -98,12 +99,12 @@ describe('object.js', function () {
       };
 
       function test(max, value) {
-        var keys = [];
-        var keyPaths = [];
+        let keys = [];
+        let keyPaths = [];
         object.each(o, function (value, keyPath, key) {
           keys.push(key);
           keyPaths.push(keyPath);
-        }, {maxLevel: max, includeObjects:true});
+        }, { maxLevel: max, includeObjects: true });
 
         expect(keys).length(value);
       }
@@ -118,7 +119,7 @@ describe('object.js', function () {
 
     it('should return correct keys including objects', function () {
 
-      var o = {
+      let o = {
         a: {
           b: 6,
           c: 7
@@ -130,10 +131,10 @@ describe('object.js', function () {
         }
       };
 
-      var paths = [];
+      let paths = [];
       object.each(o, function (value, keyPath, key) {
         paths.push(keyPath);
-      }, {includeObjects: true});
+      }, { includeObjects: true });
 
       expect(paths).to.deep.equal([
         'a',
@@ -149,7 +150,7 @@ describe('object.js', function () {
 
     it('should return correct keys excluding objects', function () {
 
-      var o = {
+      let o = {
         a: {
           b: 6,
           c: 7
@@ -161,10 +162,10 @@ describe('object.js', function () {
         }
       };
 
-      var paths = [];
+      let paths = [];
       object.each(o, function (value, keyPath, key) {
         paths.push(keyPath);
-      }, {includeObjects: false});
+      }, { includeObjects: false });
 
       expect(paths).to.deep.equal([
         'a.b',
@@ -176,12 +177,13 @@ describe('object.js', function () {
 
     it('should work with functions', function () {
 
-      var o = {
-        a: function () {},
+      let o = {
+        a: function () {
+        },
         b: []
       };
 
-      var paths = [];
+      let paths = [];
       object.each(o, function (value, keyPath, key, o2) {
         paths.push(keyPath);
         expect(o2).to.equals(o);
@@ -193,6 +195,25 @@ describe('object.js', function () {
 
     });
 
+  });
+
+  it('should eachPath', function () {
+    let o = {
+      a: [
+        { b: { c: 6 } },
+        { b: { c: 8 } },
+        { b: {} },
+        {},
+        { b: { c: {} } }
+      ]
+    };
+
+    let result = [];
+    object.eachPath(o, 'a.b.c', function (value) {
+      result.push(value);
+    });
+
+    expect(result).to.deep.equals([6, 8, undefined, undefined, o.a[4].b.c]);
   });
 
 
