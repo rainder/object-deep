@@ -1,6 +1,6 @@
 {
   "name": "object-deep",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Deep object traversing",
   "main": "lib/object-deep.js",
   "scripts": {

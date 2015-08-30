@@ -213,7 +213,29 @@ describe('object.js', function () {
       result.push(value);
     });
 
-    expect(result).to.deep.equals([6, 8, undefined, undefined, o.a[4].b.c]);
+    expect(result).to.deep.equals([6, 8, undefined, o.a[4].b.c]);
+  });
+
+  it('should eachPath replace', function () {
+    let o = {
+      a: [
+        { b: { c: 6 } },
+        { b: { c: 8 } },
+        { b: {} },
+        {},
+        { b: { c: {} } }
+      ]
+    };
+
+    object.eachPath(o, 'a.b.c', function (value) {
+      return 1;
+    }, {replace: true});
+
+    expect(o.a[0].b.c).to.equals(1);
+    expect(o.a[1].b.c).to.equals(1);
+    expect(o.a[2].b.c).to.equals(1);
+    expect(o.a[3].b).to.equals(undefined);
+    expect(o.a[4].b.c).to.equals(1);
   });
 
 
