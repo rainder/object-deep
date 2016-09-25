@@ -2,11 +2,9 @@
 
 let chai = require('chai');
 let expect = chai.expect;
-let object = require('./../');
-let _ = require('lodash');
+let objectDeep = require('./../');
 
 chai.should();
-
 
 describe('object.js', function () {
 
@@ -25,11 +23,11 @@ describe('object.js', function () {
           }
         }
       };
-      expect(object.get(o, 'a')).to.equal(o.a);
-      expect(object.get(o, 'a.b')).to.equal(o.a.b);
-      expect(object.get(o, 'a.c.d')).to.equal(o.a.c.d);
-      expect(object.get(o, 'a.b.1.c')).to.equal(o.a.b[1].c);
-      expect(object.get(o, 'a.b.x')).to.equal(undefined);
+      expect(objectDeep.get(o, 'a')).to.equal(o.a);
+      expect(objectDeep.get(o, 'a.b')).to.equal(o.a.b);
+      expect(objectDeep.get(o, 'a.c.d')).to.equal(o.a.c.d);
+      expect(objectDeep.get(o, 'a.b.1.c')).to.equal(o.a.b[1].c);
+      expect(objectDeep.get(o, 'a.b.x')).to.equal(undefined);
     });
 
   });
@@ -39,12 +37,12 @@ describe('object.js', function () {
     it('should return values', function () {
 
       let o = {};
-      object.set(o, 'a', 5)
+      objectDeep.set(o, 'a', 5)
       expect(o).to.be.deep.equal({ a: 5 });
 
       let o2
         = {};
-      object.set(o2
+      objectDeep.set(o2
         , 'a.b.c', 5)
       expect(o2
       ).to.be.deep.equal({ a: { b: { c: 5 } } });
@@ -69,15 +67,11 @@ describe('object.js', function () {
           }
         };
       };
-      expect(object.del(o(), 'a')).not.to.have.property('a');
-      expect(object.del(o(), 'a.b').a).to.have.property('c');
-      expect(object.del(o(), 'a.c.d').a.c).not.to.have.property('d');
-
-      let x = o();
-      object.del(x, 'a.b.1');
-      expect(x.a.b).length(1);
-      expect(x.a.b[0]).to.have.property('c');
-      expect(x.a.b[0].c).equals(8);
+      expect(objectDeep.deletePath(o(), 'a')).not.to.have.property('a');
+      expect(objectDeep.deletePath(o(), 'a.b').a).to.have.property('c');
+      expect(objectDeep.deletePath(o(), 'a.b.c').a.b[0]).not.to.have.property('c');
+      expect(objectDeep.deletePath(o(), 'a.b.c').a.b[1]).not.to.have.property('c');
+      expect(objectDeep.deletePath(o(), 'a.c.d').a.c).not.to.have.property('d');
     });
 
   });
@@ -101,7 +95,7 @@ describe('object.js', function () {
       function test(max, value) {
         let keys = [];
         let keyPaths = [];
-        object.each(o, function (value, keyPath, key) {
+        objectDeep.each(o, function (value, keyPath, key) {
           keys.push(key);
           keyPaths.push(keyPath);
         }, { maxLevel: max, includeObjects: true });
@@ -115,7 +109,6 @@ describe('object.js', function () {
       test(3, 6);
       test(4, 8);
     });
-
 
     it('should return correct keys including objects', function () {
 
@@ -132,7 +125,7 @@ describe('object.js', function () {
       };
 
       let paths = [];
-      object.each(o, function (value, keyPath, key) {
+      objectDeep.each(o, function (value, keyPath, key) {
         paths.push(keyPath);
       }, { includeObjects: true });
 
@@ -146,7 +139,6 @@ describe('object.js', function () {
       ]);
 
     });
-
 
     it('should return correct keys excluding objects', function () {
 
@@ -163,7 +155,7 @@ describe('object.js', function () {
       };
 
       let paths = [];
-      object.each(o, function (value, keyPath, key) {
+      objectDeep.each(o, function (value, keyPath, key) {
         paths.push(keyPath);
       }, { includeObjects: false });
 
@@ -184,7 +176,7 @@ describe('object.js', function () {
       };
 
       let paths = [];
-      object.each(o, function (value, keyPath, key, o2) {
+      objectDeep.each(o, function (value, keyPath, key, o2) {
         paths.push(keyPath);
         expect(o2).to.equals(o);
       });
@@ -209,14 +201,14 @@ describe('object.js', function () {
     };
 
     let result = [];
-    object.eachPath(o, 'a.b.c', function (value) {
+    objectDeep.eachPath(o, 'a.b.c', function (value) {
       result.push(value);
     });
 
-    expect(result).to.deep.equals([6, 8, undefined, o.a[4].b.c]);
+    expect(result).to.deep.equals([6, 8, undefined, undefined, o.a[4].b.c]);
   });
 
-  it('should eachPath replace', function () {
+  it('should mapPath', function () {
     let o = {
       a: [
         { b: { c: 6 } },
@@ -227,15 +219,11 @@ describe('object.js', function () {
       ]
     };
 
-    object.eachPath(o, 'a.b.c', function (value) {
-      return 1;
-    }, {replace: true});
+    const result = objectDeep.mapPath(o, 'a.b.c', function (value) {
+      return value;
+    });
 
-    expect(o.a[0].b.c).to.equals(1);
-    expect(o.a[1].b.c).to.equals(1);
-    expect(o.a[2].b.c).to.equals(1);
-    expect(o.a[3].b).to.equals(undefined);
-    expect(o.a[4].b.c).to.equals(1);
+    expect(result).to.deep.equals([6, 8, undefined, undefined, o.a[4].b.c]);
   });
 
 
